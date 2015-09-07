@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<general>
+	<name>blabliblablu</name>
+	<scriptVersion>1.0</scriptVersion>
+	<mediaFolder>media</mediaFolder>
+	<mode>playlist</mode>
+	<ip>192.168.35.66</ip>
+	<netmask>255.255.255.0</netmask>
+	<gateway>192.168.35.66</gateway>
+	<dhcp>false</dhcp>
+	<ssh_password>pro5i</ssh_password>
+	<volume>100</volume>
+	<initialize>false</initialize>
+	<tcp_port>9753</tcp_port>
+</general>

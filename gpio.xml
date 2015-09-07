@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<gpio>
+  <loop type="video">bild.jpg</loop>
+  <gpio0 type="video">audio.mp3</gpio0>
+  <gpio1 type="video">bild.jpg</gpio1>
+  <gpio2 type="video">MOV.MPG</gpio2>
+  <gpio3 type="video">MOV004.mpg</gpio3>
+  <retriggerEnabled>true</retriggerEnabled>
+  <retriggerDelay>2000</retriggerDelay>
+</gpio>
