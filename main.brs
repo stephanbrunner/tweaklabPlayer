@@ -6,26 +6,32 @@ Library "tools_tcp.brs"
 
 ' Tweaklab Custom BrightScript for BrightSign Players
 ' ---------------------------------------------------
-
-' This Script is responsible to bring a Bright Sign Player in a valid state to run main scripts. In order
-' to do that, it parses the settings.xml and display.xml and adapts registry settings. 
-
+'
+' This Script is responsible to bring a Bright Sign Player in a valid state and to run the script chosen with the <mode> setting. 
+' In order to do that, it parses the settings.xml and display.xml, adapts registry settings and creates objects that are
+' used by the scripts anyway.
+'
 ' Version 1.0
 ' Stephan Brunner
 ' Tweaklab
+' 11.09.2015
 
 sub tweaklabPlayer()
+    ' screenContent is used to store the displayed content while other jobs are done. Show simple header until device info is collected and shown at the end of the script.
     screenContent = ShowSimpelHeader()
 
-    ' enable debugging
+    ' the syslog that will be used to log
     m.sysLog = createObject("roSystemLog")
+
+    ' size of the connections pool
     MAX_CONNECTIONS = 10
 
-    ' generate a AssociativeArray (aka Hashmap) out of the settings.xml settings
+    ' generate a AssociativeArray (aka Hashmap) out of the settings.xml. Quit script if not available
     settings = CreateObject("roXMLElement")
     if not settings.parseFile("/settings.xml") then
         info("not able to parse settings.xml script stopped. verify or reset configuration.")
-        ScreenMessage("not able to parse settings.xml. script stopped. verify or reset configuration.", 1000)
+        ScreenMessage("not able to parse settings.xml. script stopped. verify or reset configuration.", 1000) ' from tools_messaging.brs
+        ' TODO: stop might not work if not in debug mode?
         stop
     end if
 
@@ -38,28 +44,28 @@ sub tweaklabPlayer()
     if deviceInfo.GetVersionNumber() < miniumFirmwareVersionAsNumber then
         info("FIRMWAREVERSION NOT SUPPORTED. ISSUES MAY OCCURE.")
         info("")
-        ScreenMessage("FIRMWAREVERSION NOT SUPPORTED. ISSUES MAY OCCURE.", 3000)
+        ScreenMessage("FIRMWAREVERSION NOT SUPPORTED. ISSUES MAY OCCURE.", 3000) ' from tools_messaging.brs
     end if
     minimumBootFirmwareVersionAsNumber = 4*65536 + 9*256 + 29
     if deviceInfo.GetBootVersionNumber() < minimumBootFirmwareVersionAsNumber then
         info("BOOT-FIRMWAREVERSION NOT SUPPORTED. ISSUES MAY OCCURE.")
         info("")
-        ScreenMessage("BOOT-FIRMWAREVERSION NOT SUPPORTED. ISSUES MAY OCCURE.", 3000)
+        ScreenMessage("BOOT-FIRMWAREVERSION NOT SUPPORTED. ISSUES MAY OCCURE.", 3000) ' from tools_messaging.brs
     end if
 
-    ' a reboot might be necessarry depending on changes
+    ' a reboot might be necessarry depending on changes. In this case this variable can be set to true and the reboot will be executed when all settings are up to date.
     reboot = false
 
     ' if a initialisation is wanted, all registry entries are cleared and reset to a appropriate state.
     if settings.initialize.getText() = "true" 
         info("setting player back to initial settings. rebooting...")
-        ScreenMessage("setting player back to initial settings. rebooting...", 3000)
+        ScreenMessage("setting player back to initial settings. rebooting...", 3000) ' from tools_messaging.brs
 
-        ' factory reset
+        ' Clrear registry. This resets all settings that use the registry.
         ' TODO: CreateObject("roDeviceCustomization").FactoryReset("confirm") einbauen. hat nachteile da der Befehl automatisch rebootet, also der dhcp nicht mehr deaktiviert werden kann. 
-        ClearRegistry() ' method from SetupTools.brs
+        ClearRegistry() ' method from tools_setup.brs
 
-        SetAllLoggingEnabled() ' method from SetupTools.brs'
+        SetAllLoggingEnabled() ' method from tools_setup.brs'
 
         ' enable webserver and diacnostic webserver
         networkRegistry = createObject("roRegistrySection", "networking")
@@ -78,16 +84,16 @@ sub tweaklabPlayer()
         reboot = true
     end if
 
-    ' if display.xml changed, update settings. needs a reboot
-    if UpdateDisplaySettings() = true then ' method from SetupTools.brs
+    ' If display.xml changed, update settings. needs a reboot
+    if UpdateDisplaySettings() = true then ' method from tools_setup.brs
         reboot = true
     end if
 
-    ' if network settings changed, update settings, and always reset password. 
+    ' If network settings changed, update settings, and always update password. 
     '
     ' Doesn't need a reboot but must be before the rebootSystem() to have the right network settings set 
-    ' after the reboot. They might be used.
-    UpdateNetworkSettings(settings) ' method from SetupTools.brs
+    ' after the reboot. They might be used. For examble if someone wants to connect via ssh.
+    UpdateNetworkSettings(settings) ' method from tools_setup.brs
 
     if (reboot) then
         rebootSystem()
@@ -98,19 +104,21 @@ sub tweaklabPlayer()
     connections = createObject("roArray", MAX_CONNECTIONS, false)
     server.bindToPort(int(val(settings.tcp_port.getText())))
 
+    ' Fill connections pool with roTCPStreams
     for i = 1 to MAX_CONNECTIONS step +1
-        connections.push(newConnection())
+        connections.push(newConnection()) ' newConnection() from tools_tcp.brs
     end for
 
     ' activate bonjour advertisement
     props = { name: settings.name.getText(), type: "_tl._tcp", port: int(val(settings.tcp_port.getText())), _serial: deviceInfo.GetDeviceUniqueId() }
     advert = CreateObject("roNetworkAdvertisement", props)
 
-    screenContent = ShowDeviceInfos()
+    ' shoe device info
+    screenContent = ShowDeviceInfos() ' from tools_messaging.brs
     sleep(10000) ' show Diacnostic screen for ... miniseconds
     screenContent = invalid
 
-    ' start main script
+    ' start script chosen with the <mode> setting
     if settings.mode.getText() = "gpio" then
         gpioMain(settings, server, connections)
     else if settings.mode.getText() = "playlist" then

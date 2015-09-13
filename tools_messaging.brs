@@ -1,39 +1,60 @@
+' Shows a message in the center of the connected display for a defined time.
+' 
+' @param message The message that will be shown. 
+' @param duration The duration the message will be shown. 
 sub ScreenMessage(message as String, duration as Integer)
+    ' A videoMode object holds basic informations about the video settings.
     videoMode = CreateObject("roVideoMode")
     resX = videoMode.GetResX()
     resY = videoMode.GetResY()
+
+    ' Define a frame where the message will be shown.
     r=CreateObject("roRectangle",0,resY/2-resY/64,resX,resY/32)
+
+    ' Create a collection of settings
     twParams = CreateObject("roAssociativeArray")
-    twParams.LineCount = 1
-    twParams.TextMode = 2
-    twParams.Rotation = 0
-    twParams.Alignment = 1
-    tw=CreateObject("roTextWidget",r,1,2,twParams)
+    twParams.LineCount = 1 ' write everything in one line
+    twParams.TextMode = 2 ' show it emediatley, no queue, ...
+    twParams.Rotation = 0 ' 0 degrees rotation
+    twParams.Alignment = 1 ' center the text in the frame
+
+    tw=CreateObject("roTextWidget", r, twParams.LineCount, twParams.TextMode, twParams)
     tw.PushString(message)
     tw.Show()
+
     ' TODO: this is a bad solution, as event handler can't handle events while sleep is waiting.
     Sleep(duration)
 end sub
 
+' Shows a message in the console and the log.
 sub info(message As String) 
     print message
     m.sysLog.SendLine("From Script: " + message)
 end sub
 
+' Shows a Simple welcome header
 function ShowSimpelHeader() as Object
-    border = 20
+    border = 20 ' border around the whole screen
+
+    ' A videoMode object holds basic informations about the video settings.
     videoMode = CreateObject("roVideoMode")
-    resX = videoMode.GetResX() - 2 * border
-    resY = videoMode.GetResY() - 2 * border
-    r=CreateObject("roRectangle", border, border, resX, resY)
+    width = videoMode.Getwidth() - 2 * border
+    height = videoMode.GetResY() - 2 * border
+
+    ' Define a frame where the header will be displaied.
+    r=CreateObject("roRectangle", border, border, width, height)
+
+    ' Create a collection of settings for the roTextWidget
     twParams = CreateObject("roAssociativeArray")
     twParams.LineCount = 30
     twParams.TextMode = 1
     twParams.Rotation = 0
     twParams.Alignment = 1
+
     tw=CreateObject("roTextWidget", r, twParams.LineCount, twParams.TextMode, twParams)
     content = CreateObject("roString")
 
+    ' Convert settings.xml to a roXMLElement. We will need the scriptVersion later on.
     settings = CreateObject("roXMLElement")
     settings.parseFile("/settings.xml")
 
@@ -55,20 +76,29 @@ function ShowSimpelHeader() as Object
     return tw
 end function
 
+' Shows a detailed welcome screen
 function ShowDeviceInfos() as Object
-    border = 20
+    border = 20 ' border around the whole screen
+
+    ' A videoMode object holds basic informations about the video settings.
     videoMode = CreateObject("roVideoMode")
     resX = videoMode.GetResX() - 2 * border
     resY = videoMode.GetResY() - 2 * border
+
+    ' Define a frame where the header will be displaied.
     r=CreateObject("roRectangle", border, border, resX, resY)
+
+    ' Create a collection of settings for the roTextWidget
     twParams = CreateObject("roAssociativeArray")
     twParams.LineCount = 30
     twParams.TextMode = 1
     twParams.Rotation = 0
     twParams.Alignment = 1
+
     tw=CreateObject("roTextWidget", r, twParams.LineCount, twParams.TextMode, twParams)
     content = CreateObject("roString")
 
+    ' Convert settings.xml to a roXMLElement. We will need the scriptVersion later on.
     settings = CreateObject("roXMLElement")
     settings.parseFile("/settings.xml")
 
@@ -83,7 +113,7 @@ function ShowDeviceInfos() as Object
     app("", content)
     app("", content)
 
-    ' copy network configurations to content
+    ' Copy network configurations to content
     net = CreateObject("roNetworkConfiguration", 0)
     conf = net.GetCurrentConfig()
     app("Name: " + conf.hostname, content)
@@ -122,6 +152,7 @@ function ShowDeviceInfos() as Object
     return tw
 end function
 
+' small helper to simplify appending stings to the content including the line feed and length.
 sub app(line as String, container as String)
     container.AppendString(line + chr(10), line.len() + 1)
 end sub
