@@ -90,18 +90,27 @@ sub gpioMain(settings as Object, server as Object, connections as Object)
         ' roControlDown signals, that a gpio pin was pulled down. Ignore event if player is not READY or if retriggerTimer didn't count up to retriggerDelay yet
         if type(msg) = "roControlDown" and ((not retriggerEnabled and playerState =  m.READY) or (retriggerEnabled and retriggerTimer.totalMilliseconds() > retriggerDelay)) then
             if msg.getInt() = 0 and gpioSettings.gpio0.count() > 0 then
-                playGPIOFile(mediafolder + "/" + gpioSettings.gpio0.getText(), videoPlayer, gpio, playerState, retriggerTimer)
+                if playGPIOFile(mediafolder + "/" + gpioSettings.gpio0.getText(), videoPlayer, gpio) = true then
+                    playerState = m.PLAYING
+                    retriggerTimer.Mark()
+                end if
             else if msg.getInt() = 1 and gpioSettings.gpio1.count() > 0 then 
-                playGPIOFile(mediafolder + "/" + gpioSettings.gpio1.getText(), videoPlayer, gpio, playerState, retriggerTimer)
+                if playGPIOFile(mediafolder + "/" + gpioSettings.gpio1.getText(), videoPlayer, gpio) = true then
+                    playerState = m.PLAYING
+                    retriggerTimer.Mark()
             else if msg.getInt() = 2 and gpioSettings.gpio2.count() > 0 then 
-                playGPIOFile(mediafolder + "/" + gpioSettings.gpio2.getText(), videoPlayer, gpio, playerState, retriggerTimer)
+                if playGPIOFile(mediafolder + "/" + gpioSettings.gpio2.getText(), videoPlayer, gpio) = true then
+                    playerState = m.PLAYING
+                    retriggerTimer.Mark()
             else if msg.getInt() = 3 and gpioSettings.gpio3.count() > 0 then 
-                playGPIOFile(mediafolder + "/" + gpioSettings.gpio3.getText(), videoPlayer, gpio, playerState, retriggerTimer)
+                if playGPIOFile(mediafolder + "/" + gpioSettings.gpio3.getText(), videoPlayer, gpio) = true then
+                    playerState = m.PLAYING
+                    retriggerTimer.Mark()
             end if
         ' roVieoEvent can signal various events that a videoPlayer triggers. Handle the MEDIA_ENDED event here.
         else if type(msg) = "roVideoEvent" and msg.GetInt() = m.MEDIA_ENDED then
             if gpioSettings.loop.count() > 0 then 
-                playLoopFile(mediafolder + "/" + gpioSettings.loop.getText(), videoPlayer, gpio, playerState)
+                playLoopFile(mediafolder + "/" + gpioSettings.loop.getText(), videoPlayer, gpio)
             else
                 print "file ended, no loop file defined"
             end if
@@ -124,10 +133,7 @@ end sub
 ' @param file The path of the file as a String.
 ' @param videoPlayer The videoPlayer that should play the file.
 ' @param gpio The gpio-port, configured as 4 inputs and 4 outputs.
-' @param playerState The variable storing the players state.
-' @param retriggeTimer The timer that must be set after a trigger successfully triggered a file.
-' TODO: instead of playerstate Object and retrigger timer -> return a boolean if playing the file was successful
-sub playGPIOFile(file as String, videoPlayer as Object, gpio as Object, playerState as Object, retriggerTimer as Object)
+Function playGPIOFile(file as String, videoPlayer as Object, gpio as Object) as Object
     ' screen must be cleared, as next file could be an audio file only
     videoPlayer.StopClear() 
     ' Reset all LED gpio pins
@@ -139,20 +145,17 @@ sub playGPIOFile(file as String, videoPlayer as Object, gpio as Object, playerSt
     if playableAsAudio OR playableAsVideo
         videoPlayer.playFile(file)
         gpio.SetOutputState(4, 1)
-        playerState = m.PLAYING
-        retriggerTimer.Mark()
         info("playing " + file)
     else
         info("not able to play " + file)
         ScreenMessage("not able to play " + file, 3000)
     end if
-end sub
+end Function
 
 ' @param file The path of the file as a String.
 ' @param videoPlayer The videoPlayer that should play the file.
-' @param playerState The variable storing the players state.
-' TODO: instead of playerstate Object -> return a boolean if playing the file was successful
-sub playLoopFile(file as String, videoPlayer as Object, playerState as Object)
+' TODO: gpio.brs -> playLoopFile: instead of playerstate Object -> return a boolean if playing the file was successful
+sub playLoopFile(file as String, videoPlayer as Object)
     playable = videoPlayer.GetFilePlayability(file)
     playableAsVideo = (playable.video = "playable")
     playableAsAudio = (playable.audio = "playable")
