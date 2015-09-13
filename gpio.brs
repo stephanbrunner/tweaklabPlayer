@@ -154,7 +154,6 @@ end Function
 
 ' @param file The path of the file as a String.
 ' @param videoPlayer The videoPlayer that should play the file.
-' TODO: gpio.brs -> playLoopFile: instead of playerstate Object -> return a boolean if playing the file was successful
 sub playLoopFile(file as String, videoPlayer as Object)
     playable = videoPlayer.GetFilePlayability(file)
     playableAsVideo = (playable.video = "playable")
