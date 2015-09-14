@@ -84,8 +84,9 @@ sub tweaklabPlayer()
         reboot = true
     end if
 
+    tweaklabRegistry = CreateObject("roRegistrySection", "tweaklab")
     ' If display.xml changed, update settings. needs a reboot
-    if UpdateDisplaySettings() = true then ' method from tools_setup.brs
+    if UpdateDisplaySettings(tweaklabRegistry) = true then ' method from tools_setup.brs
         reboot = true
     end if
 

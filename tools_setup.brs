@@ -59,7 +59,8 @@ Sub SetAllLoggingEnabled()
     section.Write("ut", "0")    'uploadLogFilesTime'
 End Sub
 
-Function UpdateDisplaySettings() as Object
+' @param tweaklabRegistry The tweaklab Registry.
+Function UpdateDisplaySettings(tweaklabRegistry as Object) as Object
     changed = false
 
     ' Quit script if display.xml is not available. 
@@ -73,12 +74,22 @@ Function UpdateDisplaySettings() as Object
 
     videoMode = CreateObject("roVideoMode")
 
+    ' If display.xml contented a resolution that was not playable at last boot. To communicate that issue we
+    ' need to use the screen, but as it would be set to an invalid resulotion, we first have to put the 
+    ' videoMode and the display.xml to "auto", rebbot the system, and show the following message.
+    if tweaklabRegistry.read("resolutionValidity") = "false" then
+        info("Resolution was not valid at last boot and was set to auto if you didn't change it.")
+        ScreenMessage("Resolution was not valid at last boot and was set to auto if you didn't change it.", 4000)
+        tweaklabRegistry.write("resolutionValidity", "true")
+    end if
+
     ' Settings changed to autoformat?
     if displaySettings.auto.getText() = "true" and videoMode.getModeForNextBoot() <> "auto"
         videoMode.SetModeForNextBoot("auto")
         info("changing display settings to autoformat.")
         info("rebooting to make display settings taking effect. please reconnect after reboot!")
         ScreenMessage("changing display settings to autoformat. rebooting...", 3000)
+        tweaklabRegistry.write("resolutionValidity", "true")
         changed = true
     else
         ' Collect settings
@@ -93,10 +104,20 @@ Function UpdateDisplaySettings() as Object
 
         ' Compare settings
         if videoMode.getMode() <> (width + "x" + height + "x" + freq + interlaced) then 
-            videoMode.SetModeForNextBoot(width + "x" + height + "x" + freq + interlaced)
-            info("changing display settings from " + videoMode.getMode() + " to " + width + "x" + height + "x" + freq + interlaced)
-            info("rebooting to make display settings taking effect. please reconnect after reboot!")
-            ScreenMessage("changing display settings from " + videoMode.getMode() + " to " + width + "x" + height + "x" + freq + interlaced + ". rebooting...", 3000)
+            if videoMode.SetModeForNextBoot(width + "x" + height + "x" + freq + interlaced) then
+                info("changing display settings from " + videoMode.getMode() + " to " + width + "x" + height + "x" + freq + interlaced)
+                info("rebooting to make display settings taking effect. please reconnect after reboot!")
+                ScreenMessage("changing display settings from " + videoMode.getMode() + " to " + width + "x" + height + "x" + freq + interlaced + ". rebooting...", 3000)
+                tweaklabRegistry.write("resolutionValidity", "true")
+            else
+                videoMode.SetModeForNextBoot("auto") ' make sure error message can be displaied after next boot.    
+                tweaklabRegistry.write("resolutionValidity", "false")
+                ' set dispay.xml to auto to avoid boot-loop
+                displaySettings.auto.simplify().setbody("true")
+                out = CreateObject("roByteArray")
+                out.FromASCIIString(displaySettings.GenXML(true))
+                out.WriteFile("display.xml")
+            end if
             changed = true
         end if
     end if
