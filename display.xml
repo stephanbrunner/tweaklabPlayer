@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <displaySettings>
-  <auto>true</auto>
+  <auto>false</auto>
   <width>720</width>
   <height>576</height>
   <freq>50</freq>

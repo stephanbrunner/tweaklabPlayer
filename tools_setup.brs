@@ -80,8 +80,8 @@ Function UpdateDisplaySettings(tweaklabRegistry as Object) as Object
     ' that issue we need to use the screen, but as it would be set to an unknown resolution, we where setting the videoMode
     ' to "auto" before rebooting and are now ready to show the message and stop execution of the script. 
     if tweaklabRegistry.read("resolutionValidity") = "false" then
-        info("Resolution in settings is not compatible with this player. Change Resolution, enable auto-format or use another player.")
-        ScreenMessage("Resolution in settings is not compatible with this player. Change Resolution, enable auto-format or use another player.", 0)
+        info("CONFIGURED RESOLUTION IS NOT COMPATIBLE WITH THIS PLAYER. " + chr(10) + "CHANGE RESOLUTION, ENABLE AUTO-FORMAT OR USE ANOTHER PLAYER.")
+        screenContent = ScreenMessage("CONFIGURED RESOLUTION IS NOT COMPATIBLE WITH THIS PLAYER. " + chr(10) + "CHANGE RESOLUTION, ENABLE AUTO-FORMAT OR USE ANOTHER PLAYER.", 3000)
         tweaklabRegistry.write("resolutionValidity", "true")
         while true
         end while
@@ -95,22 +95,22 @@ Function UpdateDisplaySettings(tweaklabRegistry as Object) as Object
         ScreenMessage("changing display settings to auto-format. rebooting...", 3000)
         tweaklabRegistry.write("resolutionValidity", "true")
         changed = true
-    else
-        ' Compare settings
-        if videoMode.getMode() <> (nextVideoMode) then 
-            if videoMode.SetModeForNextBoot(nextVideoMode) then
-                info("changing display settings from " + videoMode.getMode() + " to " + nextVideoMode)
-                info("rebooting to make display settings taking effect. please reconnect after reboot!")
-                ScreenMessage("changing display settings from " + videoMode.getMode() + " to " + nextVideoMode + ". rebooting...", 3000)
-                tweaklabRegistry.write("resolutionValidity", "true")
-            else
-                videoMode.SetModeForNextBoot("auto") ' make sure error message can be displayed after next boot.    
-                tweaklabRegistry.write("resolutionValidity", "false")
+    end if
 
-                info("Video format not supported by this player.")
-            end if
-            changed = true
+    ' Auto-format is disabled and resolution Settings changed?
+    if displaySettings.auto.getText() = "false" and videoMode.getMode() <> (nextVideoMode)
+        if videoMode.SetModeForNextBoot(nextVideoMode) then
+            info("changing display settings from " + videoMode.getMode() + " to " + nextVideoMode)
+            info("rebooting to make display settings taking effect. please reconnect after reboot!")
+            ScreenMessage("changing display settings from " + videoMode.getMode() + " to " + nextVideoMode + ". rebooting...", 3000)
+            tweaklabRegistry.write("resolutionValidity", "true")
+        else
+            videoMode.SetModeForNextBoot("auto") ' make sure error message can be displayed after next boot.    
+            tweaklabRegistry.write("resolutionValidity", "false")
+
+            info("Configured resolution not supported. Rebooting to show message on screen in auto-format mode.")
         end if
+        changed = true
     end if
 
     ' this is needed, to show text messages on the screen after a video was played. Otherwise messages would be overlaid.
@@ -120,6 +120,8 @@ Function UpdateDisplaySettings(tweaklabRegistry as Object) as Object
     return changed
 end Function
 
+' helper for UpdateDisplaySettings
+' @param displaySettings The display.xml converted to a roXMLElement 
 function videoModeFromXML(displaySettings) as String
     ' Collect settings
     width = displaySettings.width.getText()

@@ -3,7 +3,7 @@
 	<name>blabliblablu</name>
 	<scriptVersion>1.0</scriptVersion>
 	<mediaFolder>media</mediaFolder>
-	<mode>playlist</mode>
+	<mode>gpio</mode>
 	<ip>192.168.35.66</ip>
 	<netmask>255.255.255.0</netmask>
 	<!-- Unfortunately the gateway must be defined to make the network diacnostics happy. -->

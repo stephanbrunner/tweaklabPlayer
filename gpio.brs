@@ -76,7 +76,7 @@ sub gpioMain(settings as Object, server as Object, connections as Object)
 
     ' always start with the loop file, if loop is defined
     if gpioSettings.loop.count() > 0 then 
-        playLoopFile(mediafolder + "/" + gpioSettings.loop.getText(), videoPlayer, gpio, playerState)
+        playLoopFile(mediafolder + "/" + gpioSettings.loop.getText(), videoPlayer)
     end if
 
     ' The retrigger timing is realised with a timer that will be set with .mark() after each gpio trigger inpulse. 
@@ -98,19 +98,22 @@ sub gpioMain(settings as Object, server as Object, connections as Object)
                 if playGPIOFile(mediafolder + "/" + gpioSettings.gpio1.getText(), videoPlayer, gpio) = true then
                     playerState = m.PLAYING
                     retriggerTimer.Mark()
+                end if
             else if msg.getInt() = 2 and gpioSettings.gpio2.count() > 0 then 
                 if playGPIOFile(mediafolder + "/" + gpioSettings.gpio2.getText(), videoPlayer, gpio) = true then
                     playerState = m.PLAYING
                     retriggerTimer.Mark()
+                end if
             else if msg.getInt() = 3 and gpioSettings.gpio3.count() > 0 then 
                 if playGPIOFile(mediafolder + "/" + gpioSettings.gpio3.getText(), videoPlayer, gpio) = true then
                     playerState = m.PLAYING
                     retriggerTimer.Mark()
+                end if
             end if
         ' roVieoEvent can signal various events that a videoPlayer triggers. Handle the MEDIA_ENDED event here.
         else if type(msg) = "roVideoEvent" and msg.GetInt() = m.MEDIA_ENDED then
             if gpioSettings.loop.count() > 0 then 
-                playLoopFile(mediafolder + "/" + gpioSettings.loop.getText(), videoPlayer, gpio)
+                playLoopFile(mediafolder + "/" + gpioSettings.loop.getText(), videoPlayer)
             else
                 print "file ended, no loop file defined"
             end if

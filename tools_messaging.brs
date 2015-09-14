@@ -2,18 +2,18 @@
 ' 
 ' @param message The message that will be shown. 
 ' @param duration The duration the message will be shown. 
-sub ScreenMessage(message as String, duration as Integer)
+function ScreenMessage(message as String, duration as Integer) as Object
     ' A videoMode object holds basic informations about the video settings.
     videoMode = CreateObject("roVideoMode")
     resX = videoMode.GetResX()
     resY = videoMode.GetResY()
 
     ' Define a frame where the message will be shown.
-    r=CreateObject("roRectangle",0,resY/2-resY/64,resX,resY/32)
+    r=CreateObject("roRectangle",0,resY/2-resY/64,resX,resY/16)
 
     ' Create a collection of settings
     twParams = CreateObject("roAssociativeArray")
-    twParams.LineCount = 1 ' write everything in one line
+    twParams.LineCount = 2 ' write everything in one line
     twParams.TextMode = 2 ' show it emediatley, no queue, ...
     twParams.Rotation = 0 ' 0 degrees rotation
     twParams.Alignment = 1 ' center the text in the frame
@@ -24,7 +24,9 @@ sub ScreenMessage(message as String, duration as Integer)
 
     ' TODO: this is a bad solution, as event handler can't handle events while sleep is waiting.
     Sleep(duration)
-end sub
+
+    return tw
+end function
 
 ' Shows a message in the console and the log.
 sub info(message As String) 
@@ -38,16 +40,16 @@ function ShowSimpelHeader() as Object
 
     ' A videoMode object holds basic informations about the video settings.
     videoMode = CreateObject("roVideoMode")
-    width = videoMode.Getwidth() - 2 * border
-    height = videoMode.GetResY() - 2 * border
+    width = videoMode.GetResX() - 2 * border
+    height = videoMode.GetResY() / 3
 
     ' Define a frame where the header will be displaied.
     r=CreateObject("roRectangle", border, border, width, height)
 
     ' Create a collection of settings for the roTextWidget
     twParams = CreateObject("roAssociativeArray")
-    twParams.LineCount = 30
-    twParams.TextMode = 1
+    twParams.LineCount = 10
+    twParams.TextMode = 2
     twParams.Rotation = 0
     twParams.Alignment = 1
 
@@ -68,7 +70,7 @@ function ShowSimpelHeader() as Object
     app("in " + settings.mode.getText() + "-mode", content)
     app("", content)
     app("", content)
-    app("... starting up ...", content)
+    app("", content)
 
     tw.PushString(content)
     tw.Show()
@@ -91,7 +93,7 @@ function ShowDeviceInfos() as Object
     ' Create a collection of settings for the roTextWidget
     twParams = CreateObject("roAssociativeArray")
     twParams.LineCount = 30
-    twParams.TextMode = 1
+    twParams.TextMode = 2
     twParams.Rotation = 0
     twParams.Alignment = 1
 
@@ -135,7 +137,7 @@ function ShowDeviceInfos() as Object
 
     ' video resoultion
     videoMode = CreateObject("roVideoMode")
-    app("Video Resolution: " + videoMode.GetMode(), content)
+    app("Video Resolution: " + videoMode.GetModeForNextBoot(), content)
 
     ' settings vom settings.xml
     app("Volume: " + settings.volume.GetText(), content)

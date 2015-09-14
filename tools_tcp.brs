@@ -57,7 +57,7 @@ end sub
 ' 
 ' @param msg The occured roStreamEndEvent
 sub handleStreamEndEvent(msg as Object)
-    info("the connection to " + msg.GetUserData().msg.GetSourceAddress() + " has been closed")
+    info("connection to " + msg.GetUserData().msg.GetSourceAddress() + " has been closed")
     ' GarbageColelctor must be runned as the connection is linked with the UserData of the TCPStream stored in the connection 
     ' itself. The BrightScript GarbageCollector identifies those objects as selfreferencing and unused, and deletes them. 
     if RunGarbageCollector().orphaned > 0 ' to make selfreferencing connections are deleted
