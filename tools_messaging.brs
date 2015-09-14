@@ -41,7 +41,7 @@ function ShowSimpelHeader() as Object
     ' A videoMode object holds basic informations about the video settings.
     videoMode = CreateObject("roVideoMode")
     width = videoMode.GetResX() - 2 * border
-    height = videoMode.GetResY() / 3
+    height = (videoMode.GetResY() - 2 * border) / 3
 
     ' Define a frame where the header will be displaied.
     r=CreateObject("roRectangle", border, border, width, height)

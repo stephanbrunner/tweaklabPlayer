@@ -30,7 +30,7 @@ sub tweaklabPlayer()
     settings = CreateObject("roXMLElement")
     if not settings.parseFile("/settings.xml") then
         info("not able to parse settings.xml script stopped. verify or reset configuration.")
-        ScreenMessage("not able to parse settings.xml. script stopped. verify or reset configuration.", 1000) ' from tools_messaging.brs
+        screenContent = ScreenMessage("not able to parse settings.xml. script stopped. verify or reset configuration.", 1000) ' from tools_messaging.brs
 
         while true
         end while
@@ -124,7 +124,7 @@ sub tweaklabPlayer()
 
     ' shoe device info
     screenContent = ShowDeviceInfos() ' from tools_messaging.brs
-    sleep(10000) ' show Diacnostic screen for ... miniseconds
+    sleep(10000) ' show Diacnostic screen for ... miliseconds
     screenContent = invalid
 
     ' start script chosen with the <mode> setting

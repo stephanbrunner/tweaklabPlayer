@@ -67,7 +67,7 @@ Function UpdateDisplaySettings(tweaklabRegistry as Object) as Object
     displaySettings = CreateObject("roXMLElement")
     if not displaySettings.parseFile("/display.xml") then
         info("not able to parse display.xml. stopping script. verify or reset configuration.")
-        ScreenMessage("not able to parse display.xml. stopping script. verify or reset configuration.", 1000)
+        screenContent = ScreenMessage("not able to parse display.xml. stopping script. verify or reset configuration.", 1000)
 
         while true
         end while

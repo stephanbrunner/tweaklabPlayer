@@ -51,7 +51,7 @@ sub gpioMain(settings as Object, server as Object, connections as Object)
     gpioSettings = CreateObject("roXMLElement")
     if not gpioSettings.parseFile("/gpio.xml") then
         info("not able to parse gpio.xml. script stopped. verify or reset configuration.")
-        ScreenMessage("not able to parse gpio.xml. script stopped. verify or reset configuration.", 1000)
+        screenContent = ScreenMessage("not able to parse gpio.xml. script stopped. verify or reset configuration.", 1000)
 
         while true
         end while
