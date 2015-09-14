@@ -6,7 +6,7 @@ Sub ClearRegistry()
         section = CreateObject("roRegistrySection", sectionName)
         for each key in section.getKeyList()
             section.Delete(key)
-            section.flush() ' TODO: might not be nessecary?
+            section.flush() ' TODO: might not be necessary?
         end for
         reg.Delete(sectionName)
         reg.flush()
@@ -28,8 +28,8 @@ Sub UpdateNetworkSettings(settings As Object)
             netConf.setIP4Address(settings.ip.getText())
         end if
         if current.ip4_netmask <> settings.netmask.getText() then
-            info("changing netmaske from " + current.ip4_netmask + " to " + settings.netmask.getText())
-            ScreenMessage("changing netmaske from " + current.ip4_netmask + " to " + settings.netmask.getText(), 3000)
+            info("changing netmask from " + current.ip4_netmask + " to " + settings.netmask.getText())
+            ScreenMessage("changing netmask from " + current.ip4_netmask + " to " + settings.netmask.getText(), 3000)
             netConf.setIP4Netmask(settings.netmask.getText())
         end if
         if current.ip4_gateway <> settings.gateway.getText() then
@@ -73,62 +73,66 @@ Function UpdateDisplaySettings(tweaklabRegistry as Object) as Object
     end if
 
     videoMode = CreateObject("roVideoMode")
+    nextVideoMode = videoModeFromXML(displaySettings)
 
-    ' If display.xml contented a resolution that was not playable at last boot. To communicate that issue we
-    ' need to use the screen, but as it would be set to an invalid resulotion, we first have to put the 
-    ' videoMode and the display.xml to "auto", rebbot the system, and show the following message.
+    ' This part of the code will be executed, if the resolution settings in display.xml are not compatible with the used 
+    ' player and the player already tried to use those settings and was rebooted because of that issue. To communicate 
+    ' that issue we need to use the screen, but as it would be set to an unknown resolution, we where setting the videoMode
+    ' to "auto" before rebooting and are now ready to show the message and stop execution of the script. 
     if tweaklabRegistry.read("resolutionValidity") = "false" then
-        info("Resolution was not valid at last boot and was set to auto if you didn't change it.")
-        ScreenMessage("Resolution was not valid at last boot and was set to auto if you didn't change it.", 4000)
+        info("Resolution in settings is not compatible with this player. Change Resolution, enable auto-format or use another player.")
+        ScreenMessage("Resolution in settings is not compatible with this player. Change Resolution, enable auto-format or use another player.", 0)
         tweaklabRegistry.write("resolutionValidity", "true")
+        while true
+        end while
     end if
 
-    ' Settings changed to autoformat?
+    ' Settings changed to auto-format?
     if displaySettings.auto.getText() = "true" and videoMode.getModeForNextBoot() <> "auto"
         videoMode.SetModeForNextBoot("auto")
-        info("changing display settings to autoformat.")
+        info("changing display settings to auto-format.")
         info("rebooting to make display settings taking effect. please reconnect after reboot!")
-        ScreenMessage("changing display settings to autoformat. rebooting...", 3000)
+        ScreenMessage("changing display settings to auto-format. rebooting...", 3000)
         tweaklabRegistry.write("resolutionValidity", "true")
         changed = true
     else
-        ' Collect settings
-        width = displaySettings.width.getText()
-        height = displaySettings.height.getText()
-        freq = displaySettings.freq.getText()
-        if displaySettings.interlaced.getText() = "true" then
-            interlaced = "i"
-        else 
-            interlaced = "p"
-        end if 
-
         ' Compare settings
-        if videoMode.getMode() <> (width + "x" + height + "x" + freq + interlaced) then 
-            if videoMode.SetModeForNextBoot(width + "x" + height + "x" + freq + interlaced) then
-                info("changing display settings from " + videoMode.getMode() + " to " + width + "x" + height + "x" + freq + interlaced)
+        if videoMode.getMode() <> (nextVideoMode) then 
+            if videoMode.SetModeForNextBoot(nextVideoMode) then
+                info("changing display settings from " + videoMode.getMode() + " to " + nextVideoMode)
                 info("rebooting to make display settings taking effect. please reconnect after reboot!")
-                ScreenMessage("changing display settings from " + videoMode.getMode() + " to " + width + "x" + height + "x" + freq + interlaced + ". rebooting...", 3000)
+                ScreenMessage("changing display settings from " + videoMode.getMode() + " to " + nextVideoMode + ". rebooting...", 3000)
                 tweaklabRegistry.write("resolutionValidity", "true")
             else
-                videoMode.SetModeForNextBoot("auto") ' make sure error message can be displaied after next boot.    
+                videoMode.SetModeForNextBoot("auto") ' make sure error message can be displayed after next boot.    
                 tweaklabRegistry.write("resolutionValidity", "false")
-                ' set dispay.xml to auto to avoid boot-loop
-                ' TODO unfortuantly this kills the formating and makes the xml almost anreadable
-                displaySettings.auto.simplify().setbody("true")
-                out = CreateObject("roByteArray")
-                out.FromASCIIString(displaySettings.GenXML(true))
-                out.WriteFile("display.xml")
+
+                info("Video format not supported by this player.")
             end if
             changed = true
         end if
     end if
 
-    ' this is needed, to show text messages on the screen after a video was played. Otherwise messages would be overlaied.
+    ' this is needed, to show text messages on the screen after a video was played. Otherwise messages would be overlaid.
     EnableZoneSupport(true)
     videoMode.SetGraphicsZOrder("front")
 
     return changed
 end Function
+
+function videoModeFromXML(displaySettings) as String
+    ' Collect settings
+    width = displaySettings.width.getText()
+    height = displaySettings.height.getText()
+    freq = displaySettings.freq.getText()
+    if displaySettings.interlaced.getText() = "true" then
+        interlaced = "i"
+    else 
+        interlaced = "p"
+    end if 
+
+    return width + "x" + height + "x" + freq + interlaced
+end function
 
 ' Deletes the content of the media folder.
 sub resetFileStructure()
