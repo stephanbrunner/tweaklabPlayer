@@ -5,7 +5,9 @@ sub handleStreamLineEvent(msg as Object)
     if msg.GetString() = "reboot" then
         rebootSystem()
     else if msg.GetString() = "resetFilestructure" then
-        resetFilestructure()
+        resetFilestructure() ' from tools_setup.brs
+    else if msg.GetString() = "clearSD" then
+        clearSD() ' from tool_setup.brs
     ' TODO: make resolution request parsable too. For ex. with "check reolution: "
     else 
         videoMode = createObject("roVideoMode")
@@ -55,7 +57,6 @@ end sub
 ' 
 ' @param msg The occured roStreamEndEvent
 sub handleStreamEndEvent(msg as Object)
-    ' TODO: info the connections ip
     info("the connection to " + msg.GetUserData().msg.GetSourceAddress() + " has been closed")
     ' GarbageColelctor must be runned as the connection is linked with the UserData of the TCPStream stored in the connection 
     ' itself. The BrightScript GarbageCollector identifies those objects as selfreferencing and unused, and deletes them. 

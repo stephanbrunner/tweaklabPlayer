@@ -121,3 +121,14 @@ sub resetFileStructure()
     DeleteDirectory("/" + mediaFolder)
     CreateDirectory("/" + mediaFolder)
 end sub
+
+' Deletes all files on the SD-Card
+sub clearSD()
+    for each e in ListDir("/")
+        if not DeleteFile(e) then
+            if not DeleteDirectory(e) then
+                info(e + " is not deletable")
+            end if
+        end if
+    end for
+end sub
