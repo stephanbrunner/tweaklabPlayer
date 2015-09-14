@@ -113,6 +113,7 @@ Function UpdateDisplaySettings(tweaklabRegistry as Object) as Object
                 videoMode.SetModeForNextBoot("auto") ' make sure error message can be displaied after next boot.    
                 tweaklabRegistry.write("resolutionValidity", "false")
                 ' set dispay.xml to auto to avoid boot-loop
+                ' TODO unfortuantly this kills the formating and makes the xml almost anreadable
                 displaySettings.auto.simplify().setbody("true")
                 out = CreateObject("roByteArray")
                 out.FromASCIIString(displaySettings.GenXML(true))

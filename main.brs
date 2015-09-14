@@ -53,33 +53,37 @@ sub tweaklabPlayer()
         ScreenMessage("BOOT-FIRMWAREVERSION NOT SUPPORTED. ISSUES MAY OCCURE.", 3000) ' from tools_messaging.brs
     end if
 
-    ' a reboot might be necessarry depending on changes. In this case this variable can be set to true and the reboot will be executed when all settings are up to date.
-    reboot = false
 
     ' if a initialisation is wanted, all registry entries are cleared and reset to a appropriate state.
     if settings.initialize.getText() = "true" 
+        ' set initialize back to false in settings.xml (to avoid reboot loop)
+        ' TODO unfortuantly this kills the formating and makes the xml almost unreadable
+        settings.initialize.simplify().setbody("false")
+        out = CreateObject("roByteArray")
+        out.FromASCIIString(settings.GenXML(true))
+        out.WriteFile("settings.xml")
+
         info("setting player back to initial settings. rebooting...")
         ScreenMessage("setting player back to initial settings. rebooting...", 3000) ' from tools_messaging.brs
 
-        ' Clrear registry. This resets all settings that use the registry.
-        ' TODO: CreateObject("roDeviceCustomization").FactoryReset("confirm") einbauen. hat nachteile da der Befehl automatisch rebootet, also der dhcp nicht mehr deaktiviert werden kann. 
-        ClearRegistry() ' method from tools_setup.brs
+        ' FactoryReset
+        CreateObject("roDeviceCustomization").FactoryReset("confirm")
+    end if
 
-        SetAllLoggingEnabled() ' method from tools_setup.brs'
+    ' a reboot might be necessarry depending on changes. In this case this variable can be set to true and the reboot 
+    ' will be executed when all settings are up to date.
+    reboot = false
 
+    ' if registry is Empty, create and update necessary sections
+    if settings.GetSectionList().Count() = 0 then
         ' enable webserver and diacnostic webserver
         networkRegistry = createObject("roRegistrySection", "networking")
         networkRegistry.write("http_server", "80")
 
         ' enable ssh
         networkRegistry.write("ssh","22")
-
-        ' set initialize back to false in settings.xml (to avoid reboot loop)
-        ' TODO unfortuantly this kills the formating and makes the xml almost anreadable
-        settings.initialize.simplify().setbody("false")
-        out = CreateObject("roByteArray")
-        out.FromASCIIString(settings.GenXML(true))
-        out.WriteFile("settings.xml")
+        
+        SetAllLoggingEnabled() ' method from tools_setup.brs'
 
         reboot = true
     end if
