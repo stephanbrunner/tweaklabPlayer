@@ -52,8 +52,9 @@ sub gpioMain(settings as Object, server as Object, connections as Object)
     if not gpioSettings.parseFile("/gpio.xml") then
         info("not able to parse gpio.xml. script stopped. verify or reset configuration.")
         ScreenMessage("not able to parse gpio.xml. script stopped. verify or reset configuration.", 1000)
-        ' TODO: stop might not work if not in debug mode?
-        stop
+
+        while true
+        end while
     end if
 
     ' set retriggerEnabled from gpio.xml

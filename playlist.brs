@@ -26,13 +26,16 @@ Sub playlistMain(settings as Object, server as Object, connections as Object)
     if not xml.parseFile("/playlist.xml") then 
         info("not able to parse general.xml. script stopped. verify or reset configuration.")
         ScreenMessage("not able to parse general.xml. script stopped. verify or reset configuration.", 1000)
-        ' TODO: stop might not work if not in debug mode?
-        stop
+        while true
+        end while
     end if
 
     files = xml.task ' returns a roXMLList
-    ' TODO: stop might not work if not in debug mode?    
-    if files.count() = 0 then stop ' no files defined
+    if files.count() = 0 then 
+        ' no files defined
+        while true
+        end while
+    end if
 
     ' Where the player will look for media files
     mediaFolder = settings.mediaFolder.getText()

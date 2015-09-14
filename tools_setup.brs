@@ -68,8 +68,9 @@ Function UpdateDisplaySettings(tweaklabRegistry as Object) as Object
     if not displaySettings.parseFile("/display.xml") then
         info("not able to parse display.xml. stopping script. verify or reset configuration.")
         ScreenMessage("not able to parse display.xml. stopping script. verify or reset configuration.", 1000)
-        ' TODO: stop might not work if not in debug mode?
-        stop
+
+        while true
+        end while
     end if
 
     videoMode = CreateObject("roVideoMode")
@@ -83,6 +84,7 @@ Function UpdateDisplaySettings(tweaklabRegistry as Object) as Object
         info("CONFIGURED RESOLUTION IS NOT COMPATIBLE WITH THIS PLAYER. " + chr(10) + "CHANGE RESOLUTION, ENABLE AUTO-FORMAT OR USE ANOTHER PLAYER.")
         screenContent = ScreenMessage("CONFIGURED RESOLUTION IS NOT COMPATIBLE WITH THIS PLAYER. " + chr(10) + "CHANGE RESOLUTION, ENABLE AUTO-FORMAT OR USE ANOTHER PLAYER.", 3000)
         tweaklabRegistry.write("resolutionValidity", "true")
+
         while true
         end while
     end if

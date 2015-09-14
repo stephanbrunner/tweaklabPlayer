@@ -31,8 +31,9 @@ sub tweaklabPlayer()
     if not settings.parseFile("/settings.xml") then
         info("not able to parse settings.xml script stopped. verify or reset configuration.")
         ScreenMessage("not able to parse settings.xml. script stopped. verify or reset configuration.", 1000) ' from tools_messaging.brs
-        ' TODO: stop might not work if not in debug mode?
-        stop
+
+        while true
+        end while
     end if
 
     info("------- TWEAKLAB Custom BrightScript Version " + settings.scriptVersion.getText() + " -------")
