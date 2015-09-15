@@ -19,6 +19,7 @@ Library "tools_tcp.brs"
 sub tweaklabPlayer()
     ' screenContent is used to store the displayed content while other jobs are done. Show simple header until device info is collected and shown at the end of the script.
     screenContent = ShowSimpelHeader()
+    m.DEBUG = true ' will be set again as soon as settings.xml is read.
 
     ' the syslog that will be used to log
     m.sysLog = createObject("roSystemLog")
@@ -26,7 +27,7 @@ sub tweaklabPlayer()
     ' size of the connections pool
     MAX_CONNECTIONS = 10
 
-    ' generate a AssociativeArray (aka Hashmap) out of the settings.xml. Quit script if not available
+    ' generate a AssociativeArray (aka Hash map) out of the settings.xml. Quit script if not available
     settings = CreateObject("roXMLElement")
     if not settings.parseFile("/settings.xml") then
         info("not able to parse settings.xml script stopped. verify or reset configuration.")
@@ -34,6 +35,12 @@ sub tweaklabPlayer()
 
         while true
         end while
+    end if
+
+    if settings.debug.getText() = "true" then
+        m.DEBUG = true
+    else
+        m.DEBUG = false
     end if
 
     info("------- TWEAKLAB Custom BrightScript Version " + settings.scriptVersion.getText() + " -------")
@@ -55,10 +62,10 @@ sub tweaklabPlayer()
     end if
 
 
-    ' if a initialisation is wanted, all registry entries are cleared and reset to a appropriate state.
+    ' if a initialization is wanted, all registry entries are cleared and reset to a appropriate state.
     if settings.initialize.getText() = "true" 
         ' set initialize back to false in settings.xml (to avoid reboot loop)
-        ' TODO unfortuantly this kills the formating and makes the xml almost unreadable
+        ' TODO unfortunately this kills the formating and makes the xml almost unreadable
         settings.initialize.simplify().setbody("false")
         out = CreateObject("roByteArray")
         out.FromASCIIString(settings.GenXML(true))
@@ -67,20 +74,20 @@ sub tweaklabPlayer()
         info("setting player back to initial settings. rebooting...")
         ScreenMessage("setting player back to initial settings. rebooting...", 3000) ' from tools_messaging.brs
 
-        ' TODO: from BrightScript Version 6, the following funkction will be supported. 
+        ' TODO: from BrightScript Version 6, the following function will be supported. 
         ' CreateObject("roDeviceCustomization").FactoryReset("confirm")
 
-        ' Clear Registry, this is almost as good as a factory reset, but doen't affect BOOT:, RTC and FLASH:
+        ' Clear Registry, this is almost as good as a factory reset, but doesn't affect BOOT:, RTC and FLASH:
         ClearRegistry()
     end if
 
-    ' a reboot might be necessarry depending on changes. In this case this variable can be set to true and the reboot 
+    ' a reboot might be necessary depending on changes. In this case this variable can be set to true and the reboot 
     ' will be executed when all settings are up to date.
     reboot = false
 
     ' if registry is Empty, create and update necessary sections
     if createObject("roRegistry").GetSectionList().Count() = 0 then
-        ' enable webserver and diacnostic webserver
+        ' enable web-server and diagnostic web-server
         networkRegistry = createObject("roRegistrySection", "networking")
         networkRegistry.write("http_server", "80")
 
@@ -92,19 +99,27 @@ sub tweaklabPlayer()
         reboot = true
     end if
 
-    tweaklabRegistry = CreateObject("roRegistrySection", "tweaklab")
     ' If display.xml changed, update settings. needs a reboot
+    tweaklabRegistry = CreateObject("roRegistrySection", "tweaklab")
     if UpdateDisplaySettings(tweaklabRegistry) = true then ' method from tools_setup.brs
+        reboot = true
+    end if
+
+    ' Compare debug mode with settings and change mode if necessary.
+    if updateDebugSettings(settings) then
         reboot = true
     end if
 
     ' If network settings changed, update settings, and always update password. 
     '
     ' Doesn't need a reboot but must be before the rebootSystem() to have the right network settings set 
-    ' after the reboot. They might be used. For examble if someone wants to connect via ssh.
+    ' after the reboot. They might be used. For example if someone wants to connect via ssh.
     UpdateNetworkSettings(settings) ' method from tools_setup.brs
 
     if (reboot) then
+        info("rebooting...")
+        ' store the next message in a variable, to make it visible until the player reboots.
+        temp = ScreenMessage("rebooting...", 3000)
         rebootSystem()
     end if
 
@@ -124,7 +139,7 @@ sub tweaklabPlayer()
 
     ' shoe device info
     screenContent = ShowDeviceInfos() ' from tools_messaging.brs
-    sleep(10000) ' show Diacnostic screen for ... miliseconds
+    sleep(10000) ' show Diagnostic screen for ... milliseconds
     screenContent = invalid
 
     ' start script chosen with the <mode> setting

@@ -162,3 +162,29 @@ sub clearSD()
         end if
     end for
 end sub
+
+' Compares the settings in settings.xml with the set state of debug mode. If it changed, update the setting. Debug mode
+' enables the ctrl-c signal to stop script over console, and makes the brightsign changing into debug console if a failure
+' appears in a script. In normal mode, the BrightSign would reboot. 
+'
+' @param settings The settings.xml converted to a roXMLELement
+function updateDebugSettings(settings as Object) as Object
+    brightscriptRegistry = createObject("roRegistrySection", "brightscript")
+    changed = false
+    if settings.debug.getText() = "false" and brightscriptRegistry.read("debug") = "1" then
+        info("Disabling debug mode.")
+        ScreenMessage("Disabling debug mode.", 3000)
+        brightscriptRegistry.Delete("debug")
+        changed = true
+    else if settings.debug.getText() = "true" and brightscriptRegistry.read("debug") <> "1" then
+        info("Enabling debug mode.")
+        ScreenMessage("Enabling debug mode.", 3000)
+        brightscriptRegistry.write("debug", "1")
+        changed = true
+    end if
+    return changed
+end function
+
+
+
+

@@ -17,7 +17,7 @@ sub gpioMain(settings as Object, server as Object, connections as Object)
     m.PLAYING = 3
     m.MEDIA_ENDED = 8
     m.READY = 10
-
+    
     videoPlayer = CreateObject("roVideoPlayer")
     playerState = m.READY
     

@@ -1,4 +1,5 @@
-' Shows a message in the center of the connected display for a defined time.
+' Shows a message in the center of the connected display for a defined time. Alternativly you can store the returned 
+' roTextWidget to make the message persist on screen as long as the roTextWidget is refereced. 
 ' 
 ' @param message The message that will be shown. 
 ' @param duration The duration the message will be shown. 
@@ -28,13 +29,17 @@ function ScreenMessage(message as String, duration as Integer) as Object
     return tw
 end function
 
-' Shows a message in the console and the log.
+' Shows a message in the console and the log. You must store the returned roTextWidget to make 
+' the message persist on screen. It will pesist as long as the roTextWidget is refereced. 
 sub info(message As String) 
-    print message
-    m.sysLog.SendLine("From Script: " + message)
+    if (m.DEBUG) then
+        print message
+        m.sysLog.SendLine("From Script: " + message)
+    end if
 end sub
 
-' Shows a Simple welcome header
+' Shows a Simple welcome header. You must store the returned roTextWidget to make the message 
+' persist on screen. It will pesist as long as the roTextWidget is refereced. 
 function ShowSimpelHeader() as Object
     border = 20 ' border around the whole screen
 
@@ -78,7 +83,8 @@ function ShowSimpelHeader() as Object
     return tw
 end function
 
-' Shows a detailed welcome screen
+' Shows a detailed welcome screen. You must store the returned roTextWidget to make the message 
+' persist on screen. It will pesist as long as the roTextWidget is refereced. 
 function ShowDeviceInfos() as Object
     border = 20 ' border around the whole screen
 
@@ -139,8 +145,15 @@ function ShowDeviceInfos() as Object
     videoMode = CreateObject("roVideoMode")
     app("Video Resolution: " + videoMode.GetModeForNextBoot(), content)
 
-    ' settings vom settings.xml
+    ' settings von settings.xml
     app("Volume: " + settings.volume.GetText(), content)
+
+    ' verify debug setting
+    if CreateObject("roRegistrySection", "brightscript").read("debug") = "1" then
+        app("Debug-Mode: enabled.", content)
+    else 
+        app("Debug-Mode: disabled.", content)
+    end if
 
     ' copy DeviceInfo to content'
     deviceInfo = CreateObject("roDeviceInfo")

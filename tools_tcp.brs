@@ -15,8 +15,10 @@ sub handleStreamLineEvent(msg as Object)
         current = videoMode.GetMode()
         if videoMode.SetModeForNextBoot(msg.GetString()) then
             connection.stream.SendLine("supported")
+            info("requested video format supported")
         else
             connection.stream.SendLine("unsupported")
+            info("requested video format not supported")
         end if
         videoMode.SetModeForNextBoot(current)
         connection.stream.Flush()

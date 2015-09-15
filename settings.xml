@@ -18,4 +18,5 @@
 	<!-- If <initialize> is set to true, the registry will be cleard and all settings will be set as configured in the xmls. -->
 	<initialize>false</initialize>
 	<tcp_port>9753</tcp_port>
+	<debug>true</debug>
 </general>
