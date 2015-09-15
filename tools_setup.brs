@@ -94,7 +94,7 @@ Function UpdateDisplaySettings(tweaklabRegistry as Object) as Object
         videoMode.SetModeForNextBoot("auto")
         info("changing display settings to auto-format.")
         info("rebooting to make display settings taking effect. please reconnect after reboot!")
-        ScreenMessage("changing display settings to auto-format. rebooting...", 3000)
+        ScreenMessage("changing display settings to auto-format.", 3000)
         tweaklabRegistry.write("resolutionValidity", "true")
         changed = true
     end if
@@ -104,7 +104,7 @@ Function UpdateDisplaySettings(tweaklabRegistry as Object) as Object
         if videoMode.SetModeForNextBoot(nextVideoMode) then
             info("changing display settings from " + videoMode.getMode() + " to " + nextVideoMode)
             info("rebooting to make display settings taking effect. please reconnect after reboot!")
-            ScreenMessage("changing display settings from " + videoMode.getMode() + " to " + nextVideoMode + ". rebooting...", 3000)
+            ScreenMessage("changing display settings from " + videoMode.getMode() + " to " + nextVideoMode + ".", 3000)
             tweaklabRegistry.write("resolutionValidity", "true")
         else
             videoMode.SetModeForNextBoot("auto") ' make sure error message can be displayed after next boot.    

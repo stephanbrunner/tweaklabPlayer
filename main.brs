@@ -17,9 +17,11 @@ Library "tools_tcp.brs"
 ' 11.09.2015
 
 sub tweaklabPlayer()
+    m.DEBUG = true ' will be set again as soon as settings.xml is read. Should be true to make it possible to show an error if settings.xml is not parsable.
+
     ' screenContent is used to store the displayed content while other jobs are done. Show simple header until device info is collected and shown at the end of the script.
-    screenContent = ShowSimpelHeader()
-    m.DEBUG = true ' will be set again as soon as settings.xml is read.
+    screenContent = SimpelHeader()
+    screenContent.show()
 
     ' the syslog that will be used to log
     m.sysLog = createObject("roSystemLog")
@@ -61,6 +63,9 @@ sub tweaklabPlayer()
         ScreenMessage("BOOT-FIRMWAREVERSION NOT SUPPORTED. ISSUES MAY OCCURE.", 3000) ' from tools_messaging.brs
     end if
 
+    ' a reboot might be necessary depending on changes. In this case this variable can be set to true and the reboot 
+    ' will be executed when all settings are up to date.
+    reboot = false
 
     ' if a initialization is wanted, all registry entries are cleared and reset to a appropriate state.
     if settings.initialize.getText() = "true" 
@@ -71,19 +76,17 @@ sub tweaklabPlayer()
         out.FromASCIIString(settings.GenXML(true))
         out.WriteFile("settings.xml")
 
-        info("setting player back to initial settings. rebooting...")
-        ScreenMessage("setting player back to initial settings. rebooting...", 3000) ' from tools_messaging.brs
+        info("setting player back to initial settings.")
+        ScreenMessage("setting player back to initial settings.", 3000) ' from tools_messaging.brs
 
         ' TODO: from BrightScript Version 6, the following function will be supported. 
         ' CreateObject("roDeviceCustomization").FactoryReset("confirm")
 
         ' Clear Registry, this is almost as good as a factory reset, but doesn't affect BOOT:, RTC and FLASH:
         ClearRegistry()
-    end if
 
-    ' a reboot might be necessary depending on changes. In this case this variable can be set to true and the reboot 
-    ' will be executed when all settings are up to date.
-    reboot = false
+        reboot = true
+    end if
 
     ' if registry is Empty, create and update necessary sections
     if createObject("roRegistry").GetSectionList().Count() = 0 then
@@ -138,7 +141,10 @@ sub tweaklabPlayer()
     advert = CreateObject("roNetworkAdvertisement", props)
 
     ' shoe device info
-    screenContent = ShowDeviceInfos() ' from tools_messaging.brs
+    ' screenContent = invalid
+    ' sleep(500)
+    screenContent = DeviceInfos() ' from tools_messaging.brs
+    screenContent.show()
     sleep(10000) ' show Diagnostic screen for ... milliseconds
     screenContent = invalid
 

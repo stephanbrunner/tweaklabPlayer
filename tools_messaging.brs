@@ -40,7 +40,7 @@ end sub
 
 ' Shows a Simple welcome header. You must store the returned roTextWidget to make the message 
 ' persist on screen. It will pesist as long as the roTextWidget is refereced. 
-function ShowSimpelHeader() as Object
+function SimpelHeader() as Object
     border = 20 ' border around the whole screen
 
     ' A videoMode object holds basic informations about the video settings.
@@ -78,14 +78,14 @@ function ShowSimpelHeader() as Object
     app("", content)
 
     tw.PushString(content)
-    tw.Show()
+    ' tw.Show()
 
     return tw
 end function
 
 ' Shows a detailed welcome screen. You must store the returned roTextWidget to make the message 
 ' persist on screen. It will pesist as long as the roTextWidget is refereced. 
-function ShowDeviceInfos() as Object
+function DeviceInfos() as Object
     border = 20 ' border around the whole screen
 
     ' A videoMode object holds basic informations about the video settings.
@@ -162,7 +162,7 @@ function ShowDeviceInfos() as Object
     app("Boot Firmware: " +  deviceInfo.GetBootVersion(), content)
 
     tw.PushString(content)
-    tw.Show()
+    ' tw.Show()
 
     return tw
 end function
