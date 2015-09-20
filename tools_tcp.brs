@@ -4,10 +4,19 @@
 sub handleStreamLineEvent(msg as Object)
     if msg.GetString() = "reboot" then
         rebootSystem()
+        connection = msg.GetUserData()
+        connection.stream.SendLine("OK")
+        connection.stream.Flush()
     else if msg.GetString() = "resetFilestructure" then
         resetFilestructure() ' from tools_setup.brs
+        connection = msg.GetUserData()
+        connection.stream.SendLine("OK")
+        connection.stream.Flush()
     else if msg.GetString() = "clearSD" then
         clearSD() ' from tool_setup.brs
+        connection = msg.GetUserData()
+        connection.stream.SendLine("OK")
+        connection.stream.Flush()
     ' TODO: make resolution request parsable too. For ex. with "check reolution: "
     else 
         videoMode = createObject("roVideoMode")
