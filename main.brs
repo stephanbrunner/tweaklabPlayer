@@ -19,6 +19,9 @@ Library "tools_tcp.brs"
 sub tweaklabPlayer()
     m.DEBUG = true ' will be set again as soon as settings.xml is read. Should be true to make it possible to show an error if settings.xml is not parsable.
 
+    ' deviceInfo contains infos about the player's model, his features and the installed firmware.
+    deviceInfo = createObject("roDeviceInfo")
+
     ' screenContent is used to store the displayed content while other jobs are done. Show simple header until device info is collected and shown at the end of the script.
     screenContent = SimpelHeader()
     screenContent.show()
@@ -49,7 +52,6 @@ sub tweaklabPlayer()
     info("")
 
     ' test firmware compatibility
-    deviceInfo = createObject("roDeviceInfo")
     miniumFirmwareVersionAsNumber = 5*65536 + 1*256 + 54
     if deviceInfo.GetVersionNumber() < miniumFirmwareVersionAsNumber then
         info("FIRMWAREVERSION NOT SUPPORTED. ISSUES MAY OCCURE.")
@@ -102,10 +104,12 @@ sub tweaklabPlayer()
         reboot = true
     end if
 
-    ' If display.xml changed, update settings. needs a reboot
-    tweaklabRegistry = CreateObject("roRegistrySection", "tweaklab")
-    if UpdateDisplaySettings(tweaklabRegistry) = true then ' method from tools_setup.brs
-        reboot = true
+    ' If display.xml changed and Player can play video, update settings. needs a reboot
+    if deviceInfo.HasFeature("hdmi") or deviceInfo.HasFeature("vga") or deviceInfo.HasFeature("component video") then
+        tweaklabRegistry = CreateObject("roRegistrySection", "tweaklab")
+        if UpdateDisplaySettings(tweaklabRegistry) = true then ' method from tools_setup.brs
+            reboot = true
+        end if
     end if
 
     ' Compare debug mode with settings and change mode if necessary.
