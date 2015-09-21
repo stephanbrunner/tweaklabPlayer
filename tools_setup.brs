@@ -17,10 +17,12 @@ End Sub
 Sub UpdateNetworkSettings(settings As Object)
     netConf = CreateObject("roNetworkConfiguration", 0)
     current = netConf.GetCurrentConfig()
-    if current.dhcp = false and settings.dhcp.getText() = "true"
-        info("changing dhcp to enabled")
-        ScreenMessage("changing dhcp to enabled", 3000)
-        netConf.setDHCP()
+    if settings.dhcp.getText() = "true" then
+        if current.dhcp = false then
+            info("changing dhcp to enabled")
+            ScreenMessage("changing dhcp to enabled", 3000)
+            netConf.setDHCP()
+        end if
     else
         if current.ip4_address <> settings.ip.getText() then
             info("changing ip from " + current.ip4_address + " to " + settings.ip.getText())
