@@ -3,16 +3,19 @@
 ' @param msg The occured roStreamLineEvent.
 sub handleStreamLineEvent(msg as Object)
     if msg.GetString() = "reboot" then
-        rebootSystem()
+        ' TODO stephan: info and log
         connection = msg.GetUserData()
         connection.stream.SendLine("OK")
         connection.stream.Flush()
+        rebootSystem()
     else if msg.GetString() = "resetFilestructure" then
+        ' TODO stephan: info and log
         resetFilestructure() ' from tools_setup.brs
         connection = msg.GetUserData()
         connection.stream.SendLine("OK")
         connection.stream.Flush()
     else if msg.GetString() = "clearSD" then
+        ' TODO stephan: info and log
         clearSD() ' from tool_setup.brs
         connection = msg.GetUserData()
         connection.stream.SendLine("OK")

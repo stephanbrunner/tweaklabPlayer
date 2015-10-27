@@ -87,6 +87,7 @@ Function getNextPlayable(videoPlayer as Object, files as Object, mediafolder as 
     playableAsAudio = ""
     ' Only play playable files, skip others
     while playableAsVideo <> "playable" AND playableAsAudio <> "playable"
+        ' TODO Stephan: if videos all not playable, then player is not able to respond to any events
         ' Reset the iterator if he reached the end of the list
         if not files .isNext() then
             files.Reset()

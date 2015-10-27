@@ -78,19 +78,6 @@ Function UpdateDisplaySettings(tweaklabRegistry as Object) as Object
     videoMode = CreateObject("roVideoMode")
     nextVideoMode = videoModeFromXML(displaySettings)
 
-    ' This part of the code will be executed, if the resolution settings in display.xml are not compatible with the used 
-    ' player and the player already tried to use those settings and was rebooted because of that issue. To communicate 
-    ' that issue we need to use the screen, but as it would be set to an unknown resolution, we where setting the videoMode
-    ' to "auto" before rebooting and are now ready to show the message and stop execution of the script. 
-    if tweaklabRegistry.read("resolutionValidity") = "false" then
-        info("CONFIGURED RESOLUTION IS NOT COMPATIBLE WITH THIS PLAYER. " + chr(10) + "CHANGE RESOLUTION, ENABLE AUTO-FORMAT OR USE ANOTHER PLAYER.")
-        screenContent = ScreenMessage("CONFIGURED RESOLUTION IS NOT COMPATIBLE WITH THIS PLAYER. " + chr(10) + "CHANGE RESOLUTION, ENABLE AUTO-FORMAT OR USE ANOTHER PLAYER.", 3000)
-        tweaklabRegistry.write("resolutionValidity", "true")
-
-        while true
-        end while
-    end if
-
     ' Settings changed to auto-format?
     if displaySettings.auto.getText() = "true" and videoMode.getModeForNextBoot() <> "auto"
         videoMode.SetModeForNextBoot("auto")
@@ -115,6 +102,19 @@ Function UpdateDisplaySettings(tweaklabRegistry as Object) as Object
             info("Configured resolution not supported. Rebooting to show message on screen in auto-format mode.")
         end if
         changed = true
+    end if
+
+    ' This part of the code will be executed, if the resolution settings in display.xml are not compatible with the used 
+    ' player and the player already tried to use those settings and was rebooted because of that issue. To communicate 
+    ' that issue we need to use the screen, but as it would be set to an unknown resolution, we where setting the videoMode
+    ' to "auto" before rebooting and are now ready to show the message and stop execution of the script. 
+    if tweaklabRegistry.read("resolutionValidity") = "false" then
+        info("CONFIGURED RESOLUTION IS NOT COMPATIBLE WITH THIS PLAYER. " + chr(10) + "CHANGE RESOLUTION, ENABLE AUTO-FORMAT OR USE ANOTHER PLAYER.")
+        screenContent = ScreenMessage("CONFIGURED RESOLUTION IS NOT COMPATIBLE WITH THIS PLAYER. " + chr(10) + "CHANGE RESOLUTION, ENABLE AUTO-FORMAT OR USE ANOTHER PLAYER.", 3000)
+        tweaklabRegistry.write("resolutionValidity", "true")
+
+        while true
+        end while
     end if
 
     ' this is needed, to show text messages on the screen after a video was played. Otherwise messages would be overlaid.
