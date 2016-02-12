@@ -116,6 +116,7 @@ sub gpioMain(settings as Object, server as Object, connections as Object)
             if gpioSettings.loop.count() > 0 then 
                 playLoopFile(mediafolder + "/" + gpioSettings.loop.getText(), videoPlayer)
             else
+                videoPlayer.StopClear()
                 print "file ended, no loop file defined"
             end if
             ' Reset all LED gpio pins

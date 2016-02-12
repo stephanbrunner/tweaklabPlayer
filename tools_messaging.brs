@@ -65,6 +65,10 @@ function SimpelHeader() as Object
     settings = CreateObject("roXMLElement")
     settings.parseFile("/settings.xml")
 
+    ' Convert mode.xml to a roXMLElement.
+    mode = CreateObject("roXMLElement")
+    mode.parseFile("/mode.xml")
+
     app("", content)
     app("", content)
     app("", content)
@@ -72,7 +76,7 @@ function SimpelHeader() as Object
     app("", content)
     ' Title and script version
     app("TWEAKLAB Custom BrightScript Version " + settings.scriptVersion.getText(), content)
-    app("in " + settings.mode.getText() + "-mode", content)
+    app("in " + mode.getText() + "-mode", content)
     app("", content)
     app("", content)
     app("", content)
@@ -110,6 +114,10 @@ function DeviceInfos() as Object
     settings = CreateObject("roXMLElement")
     settings.parseFile("/settings.xml")
 
+    ' Convert mode.xml to a roXMLElement.
+    mode = CreateObject("roXMLElement")
+    mode.parseFile("/mode.xml")
+
     app("", content)
     app("", content)
     app("", content)
@@ -117,7 +125,7 @@ function DeviceInfos() as Object
     app("", content)
     ' Title and script version
     app("TWEAKLAB Custom BrightScript Version " + settings.scriptVersion.getText(), content)
-    app("in " + settings.mode.getText() + "-mode", content)
+    app("in " + mode.getText() + "-mode", content)
     app("", content)
     app("", content)
 

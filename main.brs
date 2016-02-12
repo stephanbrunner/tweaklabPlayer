@@ -42,6 +42,16 @@ sub tweaklabPlayer()
         end while
     end if
 
+    ' generate a AssociativeArray (aka Hash map) out of the mode.xml. Quit script if not available
+    mode = CreateObject("roXMLElement")
+    if not mode.parseFile("/mode.xml") then
+        info("not able to parse mode.xml script stopped. verify or reset configuration.")
+        screenContent = ScreenMessage("not able to parse mode.xml. script stopped. verify or reset configuration.", 1000) ' from tools_messaging.brs
+
+        while true
+        end while
+    end if
+
     if settings.debug.getText() = "true" then
         m.DEBUG = true
     else
@@ -152,10 +162,11 @@ sub tweaklabPlayer()
     sleep(10000) ' show Diagnostic screen for ... milliseconds
     screenContent = invalid
 
+
     ' start script chosen with the <mode> setting
-    if settings.mode.getText() = "gpio" then
+    if mode.getText() = "gpio" then
         gpioMain(settings, server, connections)
-    else if settings.mode.getText() = "playlist" then
+    else if mode.getText() = "playlist" then
         playlistMain(settings, server, connections)
     end if
 end sub
